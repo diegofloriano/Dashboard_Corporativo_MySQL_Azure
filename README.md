@@ -1,48 +1,44 @@
 Criação de um Dashboard corporativo com integração com MySQL e Azure
+# Desafio de Projeto: Processamento de Dados com MySQL Azure e Power BI
 
-# Desafio de Projeto: Integrando Dados com MySQL Azure e Transformando com Power BI
+## 📝 Descrição do Projeto
+Este projeto faz parte do desafio de "Integração de Dados com MySQL Azure e Transformação com Power BI". O objetivo foi criar uma infraestrutura de dados na nuvem, realizar a migração de uma base relacional empresarial e aplicar técnicas de ETL (Extract, Transform, Load) para preparar os dados para relatórios e modelagem futura.
 
-## 📝 Descrição do Desafio
-[cite_start]Este projeto tem como objetivo a criação de um ecossistema de dados integrado, partindo da configuração de uma instância de banco de dados **MySQL na Azure**, passando pela manipulação via scripts SQL, até a extração e transformação refinada utilizando o **Power BI**[cite: 2, 48]. [cite_start]O foco está no processo de ETL (Extract, Transform, Load) para preparar uma base de dados empresarial para futuras análises dimensionais[cite: 33, 99].
+## 🛠️ Passo a Passo do Desenvolvimento
 
-## 🛠️ Etapas do Processo
+### 1. Configuração do Banco de Dados na Azure
+- **Criação da Instância:** Foi criada uma instância do "Azure Database for MySQL" para hospedar o banco de dados.
+- **Segurança:** Configuração das Regras de Firewall para permitir o acesso via Cloud Shell, Workbench local e Power BI.
+- **Conexão:** Acesso ao banco realizado via Workbench para execução dos scripts de definição e manipulação.
 
-### 1. Configuração do Ambiente na Azure
-* [cite_start]**Criação da Instância:** Foi criada uma instância do MySQL no Azure para hospedar os dados do projeto[cite: 5, 12].
-* [cite_start]**Segurança e Acesso:** Configuração de regras de firewall para permitir a conexão do Cloud Shell, Workbench e do Power BI Desktop ao servidor[cite: 8].
+### 2. Criação do Schema e Povoamento
+- **Script de Criação:** Implementação das tabelas `employee`, `departament`, `dept_locations`, `project`, `works_on` e `dependent`.
+- **Integridade Referencial:** Configuração de chaves primárias e estrangeiras. Houve uma atenção especial à tabela `departament` (nomeada assim conforme o script original) e suas restrições de gerente.
+- **Carga de Dados:** Inserção dos registros de teste para popular o ambiente e permitir as transformações.
 
-### 2. Implementação do Banco de Dados
-* [cite_start]**Criação do Schema:** Utilizou-se um script para criar o schema `azure_company` e as tabelas `employee`, `departament`, `dept_locations`, `project`, `works_on` e `dependent`[cite: 63].
-* [cite_start]**Ajustes de Nomenclatura:** Durante a criação, garantiu-se a consistência entre os nomes das tabelas (como o ajuste da tabela `departament`) para evitar erros nas consultas subsequentes[cite: 84].
-* [cite_start]**Povoamento:** A base foi populada com um script de inserção de dados de teste[cite: 13, 47].
+### 3. Integração e Transformação com Power BI
+Após conectar o Power BI à instância da Azure, foram aplicadas as seguintes transformações no Power Query:
 
-### 3. Integração com Power BI
-* [cite_start]**Conexão:** Realizou-se a integração do Power BI com o MySQL na Azure utilizando as credenciais de acesso do servidor[cite: 10, 64].
-* [cite_start]**Análise Inicial:** Verificação de cabeçalhos, tipos de dados e detecção de possíveis anomalias na base importada[cite: 15, 65].
+- **Cabeçalhos e Tipos:** Ajuste manual de cabeçalhos e verificação dos tipos de dados. A coluna `Salary` foi convertida para **Número Decimal Fixo (Double preciso)** para evitar perdas em cálculos.
+- **Tratamento de Nulos:**
+    - Na coluna `Super_ssn` da tabela `employee`, os valores nulos foram identificados como o topo da hierarquia (gerentes gerais) e mantidos conforme análise.
+    - Verificação de departamentos sem gerentes e preenchimento das lacunas conforme a regra de negócio do desafio.
+- **Análise de Horas:** Verificação e limpeza dos dados de horas na tabela `works_on`.
+- **Separação de Colunas:** Colunas com dados complexos foram divididas para simplificar a estrutura atômica dos dados.
+- **Criação de Nomes Únicos:** Mescla das colunas `Fname` e `Lname` para criar a coluna `Nome Completo`.
+- **Mesclas de Tabelas (Joins):**
+    - **Employee + Departament:** Junção (Left Join) para trazer o nome do departamento para a linha de cada colaborador, eliminando colunas redundantes.
+    - **Colaborador + Gerente:** Realização de um self-join ou consulta para associar o nome do gerente a cada funcionário.
+    - **Departamento + Localização:** Mescla dos nomes de departamentos e locais para criar combinações únicas, essencial para a construção de um futuro modelo estrela.
+- **Agrupamento:** Agrupamento de dados para contabilizar a quantidade de colaboradores por gerente.
 
-### 4. Transformação dos Dados (ETL no Power Query)
-Seguindo as diretrizes de transformação do desafio, foram executados os seguintes passos:
+## 🧠 Justificativas Teóricas do Desafio
 
-* **Tipagem de Dados:** Os cabeçalhos foram revisados e os tipos de dados ajustados. [cite_start]Em especial, os valores monetários foram modificados para o tipo **Número Decimal Fixo (Double preciso)**[cite: 17, 18, 71].
-* **Tratamento de Nulos:**
-    * Analisou-se a coluna `Super_ssn` da tabela `employee`. [cite_start]Os valores nulos foram preservados para os colaboradores que são gerentes de topo (sem supervisores)[cite: 19, 20, 73].
-    * [cite_start]Verificou-se a existência de departamentos sem gerentes, realizando o preenchimento necessário com base nos dados disponíveis[cite: 21, 77].
-* **Refinamento de Colunas:**
-    * [cite_start]**Mescla de Nome e Sobrenome:** As colunas `Fname` e `Lname` foram mescladas para formar uma única coluna de "Nome Completo" dos colaboradores[cite: 31, 94].
-    * [cite_start]**Separação de Colunas Complexas:** Colunas que continham informações compostas (como endereços ou dados mesclados) foram separadas para facilitar a filtragem[cite: 24, 80].
-    * [cite_start]**Eliminação de Dados Desnecessários:** Colunas que não agregam valor ao relatório final foram removidas para otimizar o modelo[cite: 27, 36, 109].
-* **Relacionamentos e Agrupamentos:**
-    * [cite_start]**Junção de Colaboradores e Departamentos:** Realizou-se a mescla das tabelas `employee` e `departament` (usando `Dno` e `Dnumber`) para que cada colaborador tenha o nome do seu departamento associado[cite: 25, 84].
-    * [cite_start]**Junção Colaborador-Gerente:** Criou-se uma relação para identificar os gerentes de cada colaborador, utilizando consultas SQL ou a função de mescla do Power BI[cite: 28, 91].
-    * [cite_start]**Unique Combinations:** Os nomes de departamentos e localizações foram mesclados (`Dname` + `Dlocation`) para garantir que cada combinação local-departamento seja única, auxiliando o futuro modelo estrela[cite: 32, 98].
-    * [cite_start]**Contagem de Equipes:** Agrupou-se os dados para identificar o número de colaboradores subordinados a cada gerente[cite: 35, 108].
+### Por que usar "Mesclar" e não "Atribuir/Acrescentar" no caso de Departamento e Local?
+Durante o processo, surge a dúvida sobre qual ferramenta de combinação utilizar. Neste cenário, utilizamos o **Mesclar (Merge)** e não o **Acrescentar/Atribuir (Append)** pelos seguintes motivos:
 
-## 🧠 Justificativas Teóricas
-
-### [cite_start]Por que usar "Mesclar" e não "Atribuir/Acrescentar" no caso dos Departamentos e Localização? [cite: 34, 100]
-No Power BI, a operação de **Acrescentar (Append)** é utilizada quando queremos empilhar dados de tabelas que possuem a mesma estrutura (junção vertical). 
-
-Neste caso específico, utilizamos o **Mesclar (Merge)** pois precisávamos realizar uma **junção horizontal**. O objetivo era estender a tabela de departamentos adicionando informações de localização baseadas em uma chave comum. [cite_start]Isso cria um registro enriquecido onde o departamento e sua localização específica tornam-se um par único, algo que o simples empilhamento de linhas não conseguiria realizar[cite: 34, 100].
+1. **Direção da Combinação:** O "Mesclar" realiza uma junção horizontal (similar ao JOIN do SQL). Como queríamos adicionar a informação de *Localização* (que estava em outra tabela) à nossa tabela de *Departamentos*, precisávamos unir as colunas baseadas em uma chave comum (`Dnumber`).
+2. **Estrutura dos Dados:** O "Acrescentar" serve para empilhar linhas (junção vertical) de tabelas que possuem a mesma estrutura. Como as tabelas de Departamento e Localização possuem informações e colunas distintas, o "Acrescentar" apenas criaria uma tabela longa com muitos valores nulos, enquanto o "Mesclar" cria uma tabela rica e consolidada, facilitando a criação de dimensões únicas para o modelo de BI.
 
 ---
-[cite_start]**Projeto desenvolvido como parte da Formação Power BI Analyst.** [cite: 38]
+**Projeto desenvolvido para a Formação Power BI Analyst.**
