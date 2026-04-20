@@ -16,6 +16,15 @@ Este projeto faz parte do desafio de "Integração de Dados com MySQL Azure e Tr
 - **Integridade Referencial:** Configuração de chaves primárias e estrangeiras. Houve uma atenção especial à tabela `departament` (nomeada assim conforme o script original) e suas restrições de gerente.
 - **Carga de Dados:** Inserção dos registros de teste para popular o ambiente e permitir as transformações.
 
+### 💡 Solução de Problemas (Troubleshooting) e Boas Práticas
+
+**1. Dependência Circular no Povoamento do Banco:**
+Durante a inserção dos dados (`INSERT`), o MySQL bloqueou a operação devido a restrições de chaves estrangeiras (ex: um empregado precisava de um gerente que ainda não havia sido inserido, e o departamento precisava do empregado). 
+* **Solução aplicada:** O script de inserção foi ajustado encapsulando os comandos entre `SET FOREIGN_KEY_CHECKS = 0;` e `SET FOREIGN_KEY_CHECKS = 1;`. Isso permitiu o povoamento inicial sem ferir a integridade do banco, reativando as travas logo em seguida.
+
+**2. Correção de Nomenclatura via ETL:**
+O banco de dados original possuía um erro de digitação na tabela de departamentos (`departament`). Seguindo as boas práticas de não alterar a estrutura da fonte de dados (banco de produção), a correção para o inglês correto (`department`) ou tradução para o português foi realizada durante a etapa de transformação no **Power Query**, garantindo um modelo final limpo para o relatório.
+
 ### 3. Integração e Transformação com Power BI
 Após conectar o Power BI à instância da Azure, foram aplicadas as seguintes transformações no Power Query:
 
