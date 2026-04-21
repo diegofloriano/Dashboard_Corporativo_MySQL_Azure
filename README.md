@@ -32,8 +32,11 @@ Após conectar o Power BI à instância da Azure, foram aplicadas as seguintes t
 - **Tratamento de Nulos:**
     - Na coluna `Super_ssn` da tabela `employee`, os valores nulos foram identificados como o topo da hierarquia (gerentes gerais) e mantidos conforme análise.
     - Verificação de departamentos sem gerentes e preenchimento das lacunas conforme a regra de negócio do desafio.
+- * **Limpeza de Strings e Inconsistências:**
+    * Foi identificada uma inconsistência no padrão de separadores da coluna `Address` (o endereço do colaborador Ramesh possuía um hífen extra no nome da rua: "Fire-Oak", o que quebrava a divisão padrão de colunas).
+    * **Solução:** Aplicou-se a função de "Substituir Valores" para trocar o delimitador incorreto por um espaço em branco antes de executar a quebra da string. Após o tratamento, a coluna foi dividida perfeitamente em 4 novas colunas: Número, Rua, Cidade e Estado, garantindo a integridade dos dados geográficos.
 - **Análise de Horas:** Verificação e limpeza dos dados de horas na tabela `works_on`.
-- **Separação de Colunas:** Colunas com dados complexos foram divididas para simplificar a estrutura atômica dos dados.
+- **Separação de Colunas:** Colunas com dados complexos foram divididas para simplificar a estrutura atômica dos dados como a coluna `address` que foi dividida em: `number`, `street`, `city` e `state`.
 - **Criação de Nomes Únicos:** Mescla das colunas `Fname` e `Lname` para criar a coluna `Nome Completo`.
 - **Mesclas de Tabelas (Joins):**
     - **Employee + Departament:** Junção (Left Join) para trazer o nome do departamento para a linha de cada colaborador, eliminando colunas redundantes.
@@ -48,6 +51,14 @@ Durante o processo, surge a dúvida sobre qual ferramenta de combinação utiliz
 
 1. **Direção da Combinação:** O "Mesclar" realiza uma junção horizontal (similar ao JOIN do SQL). Como queríamos adicionar a informação de *Localização* (que estava em outra tabela) à nossa tabela de *Departamentos*, precisávamos unir as colunas baseadas em uma chave comum (`Dnumber`).
 2. **Estrutura dos Dados:** O "Acrescentar" serve para empilhar linhas (junção vertical) de tabelas que possuem a mesma estrutura. Como as tabelas de Departamento e Localização possuem informações e colunas distintas, o "Acrescentar" apenas criaria uma tabela longa com muitos valores nulos, enquanto o "Mesclar" cria uma tabela rica e consolidada, facilitando a criação de dimensões únicas para o modelo de BI.
+
+
+### 📊 Construção do Dashboard
+O relatório foi estruturado para fornecer uma visão clara da alocação de capital humano. Os principais indicadores incluem:
+- **Distribuição Setorial:** Gráficos de rosca demonstrando a dispersão de colaboradores por departamento.
+- **Análise de Esforço:** Cruzamento de dados entre projetos e horas trabalhadas (`works_on`) para identificar os centros de maior custo operacional.
+- **Gestão de Sobrecarga:** Gráficos de barras comparando a carga horária individual com o limite padrão de 40 horas, permitindo a identificação visual rápida de colaboradores com excesso de alocação em múltiplos projetos.
+- **Interatividade:** Implementação de filtros (slicers) por departamento e localização para navegação multidimensional nos dados.
 
 ---
 **Projeto desenvolvido para a Formação Power BI Analyst.**
