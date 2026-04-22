@@ -1,64 +1,63 @@
-Criação de um Dashboard corporativo com integração com MySQL e Azure
-# Desafio de Projeto: Processamento de Dados com MySQL Azure e Power BI
+# Desafio de Projeto: Coleta e Processamento de Dados com MySQL Azure e Power BI
 
 ## 📝 Descrição do Projeto
-Este projeto faz parte do desafio de "Integração de Dados com MySQL Azure e Transformação com Power BI". O objetivo foi criar uma infraestrutura de dados na nuvem, realizar a migração de uma base relacional empresarial e aplicar técnicas de ETL (Extract, Transform, Load) para preparar os dados para relatórios e modelagem futura.
+Este projeto consistiu na criação de uma infraestrutura de dados completa, integrando uma instância de banco de dados **MySQL na Azure** com o **Power BI**. O foco principal foi a aplicação de técnicas avançadas de ETL (Extract, Transform, Load) e modelagem de dados para transformar uma base relacional bruta em um dashboard corporativo funcional e informativo.
 
-## 🛠️ Passo a Passo do Desenvolvimento
+## 🛠️ Jornada de Desenvolvimento
 
-### 1. Configuração do Banco de Dados na Azure
-- **Criação da Instância:** Foi criada uma instância do "Azure Database for MySQL" para hospedar o banco de dados.
-- **Segurança:** Configuração das Regras de Firewall para permitir o acesso via Cloud Shell, Workbench local e Power BI.
-- **Conexão:** Acesso ao banco realizado via Workbench para execução dos scripts de definição e manipulação.
+### 1. Configuração da Infraestrutura na Nuvem
+- **Azure Database for MySQL:** Criação e configuração de uma instância de banco de dados na nuvem Microsoft Azure.
+- **Segurança de Acesso:** Configuração de regras de firewall para permitir a comunicação entre o servidor Azure e as ferramentas locais (MySQL Workbench e Power BI Desktop).
+- **Conexão:** Estabelecimento de conexão via Workbench para a execução dos scripts de definição (DDL) e manipulação de dados (DML).
 
-### 2. Criação do Schema e Povoamento
-- **Script de Criação:** Implementação das tabelas `employee`, `departament`, `dept_locations`, `project`, `works_on` e `dependent`.
-- **Integridade Referencial:** Configuração de chaves primárias e estrangeiras. Houve uma atenção especial à tabela `departament` (nomeada assim conforme o script original) e suas restrições de gerente.
-- **Carga de Dados:** Inserção dos registros de teste para popular o ambiente e permitir as transformações.
+### 2. Implementação e Povoamento do Banco de Dados
+- **Criação do Schema:** Implementação das tabelas `employee`, `departament`, `dept_locations`, `project`, `works_on` e `dependent`.
+- **Integridade Referencial:** Configuração rigorosa de chaves primárias e chaves estrangeiras para garantir a consistência dos dados.
 
-### 💡 Solução de Problemas (Troubleshooting) e Boas Práticas
+### 💡 Solução de Problemas Técnicos (Troubleshooting)
 
-**1. Dependência Circular no Povoamento do Banco:**
-Durante a inserção dos dados (`INSERT`), o MySQL bloqueou a operação devido a restrições de chaves estrangeiras (ex: um empregado precisava de um gerente que ainda não havia sido inserido, e o departamento precisava do empregado). 
-* **Solução aplicada:** O script de inserção foi ajustado encapsulando os comandos entre `SET FOREIGN_KEY_CHECKS = 0;` e `SET FOREIGN_KEY_CHECKS = 1;`. Isso permitiu o povoamento inicial sem ferir a integridade do banco, reativando as travas logo em seguida.
+**1. Tratamento de Dependências Circulares:**
+Durante o povoamento, o MySQL bloqueou as inserções devido a restrições de chaves estrangeiras (ex: colaboradores que precisavam de departamentos que ainda não haviam sido processados).
+* **Solução:** O script de inserção foi executado utilizando `SET FOREIGN_KEY_CHECKS = 0;` no início e `SET FOREIGN_KEY_CHECKS = 1;` ao final, permitindo a carga inicial sem comprometer as regras de integridade do banco.
 
 **2. Correção de Nomenclatura via ETL:**
-O banco de dados original possuía um erro de digitação na tabela de departamentos (`departament`). Seguindo as boas práticas de não alterar a estrutura da fonte de dados (banco de produção), a correção para o inglês correto (`department`) ou tradução para o português foi realizada durante a etapa de transformação no **Power Query**, garantindo um modelo final limpo para o relatório.
+Identificou-se um erro de digitação na tabela original (`departament`). Seguindo as boas práticas de não alterar a estrutura da fonte (produção), a correção para `department` foi realizada diretamente na camada de transformação do Power BI.
 
-### 3. Integração e Transformação com Power BI
-Após conectar o Power BI à instância da Azure, foram aplicadas as seguintes transformações no Power Query:
+### 3. Transformação de Dados (Power Query)
+A etapa de ETL foi a mais minuciosa, garantindo a limpeza e a usabilidade dos dados:
 
-- **Cabeçalhos e Tipos:** Ajuste manual de cabeçalhos e verificação dos tipos de dados. A coluna `Salary` foi convertida para **Número Decimal Fixo (Double preciso)** para evitar perdas em cálculos.
-- **Tratamento de Nulos:**
-    - Na coluna `Super_ssn` da tabela `employee`, os valores nulos foram identificados como o topo da hierarquia (gerentes gerais) e mantidos conforme análise.
-    - Verificação de departamentos sem gerentes e preenchimento das lacunas conforme a regra de negócio do desafio.
-- * **Limpeza de Strings e Inconsistências:**
-    * Foi identificada uma inconsistência no padrão de separadores da coluna `Address` (o endereço do colaborador Ramesh possuía um hífen extra no nome da rua: "Fire-Oak", o que quebrava a divisão padrão de colunas).
-    * **Solução:** Aplicou-se a função de "Substituir Valores" para trocar o delimitador incorreto por um espaço em branco antes de executar a quebra da string. Após o tratamento, a coluna foi dividida perfeitamente em 4 novas colunas: Número, Rua, Cidade e Estado, garantindo a integridade dos dados geográficos.
-- **Análise de Horas:** Verificação e limpeza dos dados de horas na tabela `works_on`.
-- **Separação de Colunas:** Colunas com dados complexos foram divididas para simplificar a estrutura atômica dos dados como a coluna `address` que foi dividida em: `number`, `street`, `city` e `state`.
-- **Criação de Nomes Únicos:** Mescla das colunas `Fname` e `Lname` para criar a coluna `Nome Completo`.
+- **Tipagem e Moeda:** A coluna `Salary` foi convertida para **Número Decimal Fixo** para assegurar precisão em cálculos financeiros.
+- **Tratamento de Datas:** Colunas de data foram formatadas exclusivamente como **Data**, eliminando informações de hora que não agregavam valor ao modelo.
+- **Limpeza de Strings (O Caso Ramesh):** Corrigiu-se uma inconsistência no endereço do colaborador Ramesh, onde um hífen extra no nome da rua ("Fire-Oak") impedia a divisão correta. Utilizou-se a função de substituição de valores para normalizar a string.
+- **Desmembramento de Endereço:** A coluna `Address` foi dividida em quatro novas colunas: `Número`, `Rua`, `Cidade` e `Estado`.
+- **Nome Completo:** Mescla das colunas `Fname` e `Lname`. A coluna `Minit` (inicial do meio) foi propositalmente omitida para manter a limpeza visual conforme o padrão exibido nos requisitos do desafio.
+- **Tratamento de Nulos:** - Verificou-se que apenas o gerente geral (CEO) possuía o campo `Super_ssn` nulo.
+    - Departamentos sem gerentes foram validados e preenchidos conforme os dados de suporte.
 - **Mesclas de Tabelas (Joins):**
-    - **Employee + Departament:** Junção (Left Join) para trazer o nome do departamento para a linha de cada colaborador, eliminando colunas redundantes.
-    - **Colaborador + Gerente:** Realização de um self-join ou consulta para associar o nome do gerente a cada funcionário.
-    - **Departamento + Localização:** Mescla dos nomes de departamentos e locais para criar combinações únicas, essencial para a construção de um futuro modelo estrela.
-- **Agrupamento:** Agrupamento de dados para contabilizar a quantidade de colaboradores por gerente.
+    - **Employee + Departament:** Junção para associar o nome do departamento a cada colaborador.
+    - **Auto-relação (Self-Join):** Mescla da tabela `employee` com ela mesma para associar o nome do gerente a cada colaborador subordinado.
+    - **Departamento + Localização:** Mescla para criar combinações únicas de Local/Departamento, essencial para o modelo dimensional.
+- **Agrupamento de Dados:** Criação de uma consulta acessória para contabilizar a quantidade de colaboradores por gerente.
 
-## 🧠 Justificativas Teóricas do Desafio
+### 4. Modelagem de Dados e Cardinalidade
+- **Ajuste de Duplicatas:** Durante o processo, foi necessário aplicar a função **"Remover Duplicatas"** nas tabelas de dimensão (`employee` e `departament`) para eliminar "clones" gerados pelas mesclas de múltiplas localizações.
+- **Configuração de Relacionamentos:** Estabelecimento manual de conexões entre as tabelas (Ssn para Essn, Dno para Dnumber, etc.) garantindo a cardinalidade **1:N (Um para Muitos)** e o funcionamento correto dos filtros cruzados.
 
-### Por que usar "Mesclar" e não "Atribuir/Acrescentar" no caso de Departamento e Local?
-Durante o processo, surge a dúvida sobre qual ferramenta de combinação utilizar. Neste cenário, utilizamos o **Mesclar (Merge)** e não o **Acrescentar/Atribuir (Append)** pelos seguintes motivos:
+> **[ Placeholder:  /Imagens/Relatorio_AzureCompany.PNG ]**
 
-1. **Direção da Combinação:** O "Mesclar" realiza uma junção horizontal (similar ao JOIN do SQL). Como queríamos adicionar a informação de *Localização* (que estava em outra tabela) à nossa tabela de *Departamentos*, precisávamos unir as colunas baseadas em uma chave comum (`Dnumber`).
-2. **Estrutura dos Dados:** O "Acrescentar" serve para empilhar linhas (junção vertical) de tabelas que possuem a mesma estrutura. Como as tabelas de Departamento e Localização possuem informações e colunas distintas, o "Acrescentar" apenas criaria uma tabela longa com muitos valores nulos, enquanto o "Mesclar" cria uma tabela rica e consolidada, facilitando a criação de dimensões únicas para o modelo de BI.
+## 🧠 Justificativas Teóricas
 
+### Mesclar (Merge) vs. Acrescentar (Append)
+Neste projeto, a operação de **Mesclar** foi utilizada para unir tabelas horizontalmente (como o JOIN do SQL), adicionando colunas de localização e nomes de departamentos aos registros. O **Acrescentar** não foi utilizado pois ele serve para empilhar linhas verticalmente entre tabelas de mesma estrutura, o que não se aplicava à diversidade de dados deste schema.
 
-### 📊 Construção do Dashboard
-O relatório foi estruturado para fornecer uma visão clara da alocação de capital humano. Os principais indicadores incluem:
-- **Distribuição Setorial:** Gráficos de rosca demonstrando a dispersão de colaboradores por departamento.
-- **Análise de Esforço:** Cruzamento de dados entre projetos e horas trabalhadas (`works_on`) para identificar os centros de maior custo operacional.
-- **Gestão de Sobrecarga:** Gráficos de barras comparando a carga horária individual com o limite padrão de 40 horas, permitindo a identificação visual rápida de colaboradores com excesso de alocação em múltiplos projetos.
-- **Interatividade:** Implementação de filtros (slicers) por departamento e localização para navegação multidimensional nos dados.
+## 📊 O Dashboard Final
+O relatório foi construído para oferecer insights sobre a alocação de pessoal e custos:
+- **Distribuição Setorial:** Gráfico de rosca demonstrando a dispersão da equipe por departamento.
+- **Análise de Esforço:** Gráfico de barras identificando os projetos com maior carga horária acumulada.
+- **Gestão de Sobrecarga:** Gráfico de colunas comparando as horas totais trabalhadas por cada colaborador com uma linha de referência de 40 horas semanais. O gerente James Borg aparece com 0 horas, refletindo sua posição puramente administrativa/supervisória no banco de dados.
+- **Interatividade:** Filtros dinâmicos (slicers) por Localização do Departamento e Localização do Projeto.
+
+> **[ Placeholder: /Imagens/Relatorio_AzureCompany.PNG ]**
 
 ---
-**Projeto desenvolvido para a Formação Power BI Analyst.**
+**Projeto desenvolvido para Formação Power BI Analyst.**
