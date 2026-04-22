@@ -43,7 +43,7 @@ A etapa de ETL foi a mais minuciosa, garantindo a limpeza e a usabilidade dos da
 - **Ajuste de Duplicatas:** Durante o processo, foi necessário aplicar a função **"Remover Duplicatas"** nas tabelas de dimensão (`employee` e `departament`) para eliminar "clones" gerados pelas mesclas de múltiplas localizações.
 - **Configuração de Relacionamentos:** Estabelecimento manual de conexões entre as tabelas (Ssn para Essn, Dno para Dnumber, etc.) garantindo a cardinalidade **1:N (Um para Muitos)** e o funcionamento correto dos filtros cruzados.
 
-> **[ Placeholder:  /Imagens/Relatorio_AzureCompany.PNG ]**
+> **![Relacionamentos e Modelo de Dados](./Imagens/Modelo_AzureCompany.PNG)**
 
 ## 🧠 Justificativas Teóricas
 
@@ -57,7 +57,7 @@ O relatório foi construído para oferecer insights sobre a alocação de pessoa
 - **Gestão de Sobrecarga:** Gráfico de colunas comparando as horas totais trabalhadas por cada colaborador com uma linha de referência de 40 horas semanais. O gerente James Borg aparece com 0 horas, refletindo sua posição puramente administrativa/supervisória no banco de dados.
 - **Interatividade:** Filtros dinâmicos (slicers) por Localização do Departamento e Localização do Projeto.
 
-> **[ Placeholder: /Imagens/Relatorio_AzureCompany.PNG ]**
+> **![Dashboard Final Azure Company](./Imagens/Relatorio_AzureCompany.PNG)**
 
 ---
 **Projeto desenvolvido para Formação Power BI Analyst.**
